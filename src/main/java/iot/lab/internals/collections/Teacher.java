@@ -6,17 +6,24 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Collections;
 import java.util.List;
 
 @Data
-@Builder
 @Document(collection = "teacher")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Teacher {
+    public Teacher(String name, int code, List<Section> sectionMap) {
+        this.teacherId = null;
+        this.name = name;
+        this.code = code;
+        this.sectionMap = sectionMap;
+    }
+
     @Id
-    private String teacherId;
-    private String name;
-    private String code;
-    private List<Section> sectionMap;
+     public String teacherId;
+     public String name = "";
+     public int code;
+     public List<Section> sectionMap;
 
 }

@@ -6,6 +6,11 @@ import lombok.Data;
 @Data
 @Builder
 public class Section {
-    private int section;
-    private String subject;
+     public Section(String section, String subject) {
+          this.section = section;
+          this.subject = subject;
+     }
+
+     public String section = "";
+     public String subject = "";
 }
