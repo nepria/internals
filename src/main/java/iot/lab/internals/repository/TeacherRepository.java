@@ -10,7 +10,7 @@ import java.util.List;
 public interface TeacherRepository extends MongoRepository<Teacher, String> {
 
     boolean existsTeacherByName(String name);
-    Teacher findByCode(String id);
+    Teacher findByCode(int code);
     Teacher findTeacherByName(String name);
 
 }

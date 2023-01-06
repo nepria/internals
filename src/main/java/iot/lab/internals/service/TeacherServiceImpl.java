@@ -20,7 +20,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public Teacher getTeacherById(String id) {
+    public Teacher getTeacherById(int id) {
         return teacherRepository.findByCode(id);
     }
 

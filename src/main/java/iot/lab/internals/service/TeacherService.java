@@ -9,7 +9,7 @@ public interface TeacherService {
     String save(Teacher teacher);
 
 
-    Teacher getTeacherById(String id);
+    Teacher getTeacherById(int id);
 
     boolean ifTeacherExistsByName(String s);
 

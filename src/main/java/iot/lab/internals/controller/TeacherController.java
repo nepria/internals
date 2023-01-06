@@ -33,9 +33,10 @@ public class TeacherController {
     @Autowired
     private TeacherService teacherService;
 
+    //Get Teacher Object by passing TeacherCode
     @GetMapping
-    public Teacher getDetails(@RequestParam(value="Tid") String id) {
-        return teacherService.getTeacherById(id);
+    public Teacher getDetails(@RequestParam(value="tCode") int code) {
+        return teacherService.getTeacherById(code);
     }
 
     @GetMapping("/createTeachers")
