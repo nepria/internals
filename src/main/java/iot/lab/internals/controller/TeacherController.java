@@ -1,6 +1,7 @@
 package iot.lab.internals.controller;
 
 import iot.lab.internals.collections.Section;
+import iot.lab.internals.collections.Student;
 import iot.lab.internals.collections.Teacher;
 import com.opencsv.exceptions.CsvException;
 import iot.lab.internals.service.TeacherService;
@@ -18,20 +19,16 @@ import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/teacher")
 public class TeacherController {
     int count = 0;
 
-
-
     @Autowired
     private TeacherService teacherService;
+
 
     //Get Teacher Object by passing TeacherCode
     @GetMapping
@@ -39,15 +36,15 @@ public class TeacherController {
         return teacherService.getTeacherById(code);
     }
 
-    @GetMapping("/createTeachers")
-    public String importTeacher(@RequestParam("file")MultipartFile file ) throws IOException, CsvException {
+    //Import All Teachers into Database from .csv file
+    @GetMapping("/importTeachers")
+    public String importTeacher(@RequestParam("file")MultipartFile file ) throws IOException {
 
         List<String> subjects = new ArrayList<>();
         List<List<String>> teacherSubjectMap = new ArrayList<>();
         FileInputStream fis = new FileInputStream(convert(file));
         XSSFWorkbook wb = new XSSFWorkbook(fis);
         XSSFSheet sheet = wb.getSheetAt(0);
-        FormulaEvaluator formulaEvaluator = wb.getCreationHelper().createFormulaEvaluator();
         for(Row row: sheet) {
             for(Cell cell: row) {
                 int col = cell.getColumnIndex();
@@ -83,11 +80,14 @@ public class TeacherController {
             sectionMap.add(sObj);
             Teacher tObj = new Teacher(teacher.get(0), count++, sectionMap);
             teacherService.save(tObj);
-        } else {
+        }
+        //Updating Teachers section since it already exists
+        else {
             teacherService.addSection(teacher.get(0), sObj);
         }
     }
 
+    //Convert Multipart File to File type
     public File convert(MultipartFile file) throws IOException {
         File convFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
         FileOutputStream fos = new FileOutputStream(convFile);
@@ -96,9 +96,31 @@ public class TeacherController {
         return convFile;
     }
 
+    //Save a single Teacher
     @PostMapping
     public String save(@RequestBody Teacher teacher) {
         return teacherService.save(teacher);
+    }
+
+    @GetMapping("/importStudents")
+    public String importStudent(@RequestParam("file")MultipartFile file ) throws IOException {
+        FileInputStream fis = new FileInputStream(convert(file));
+        XSSFWorkbook wb = new XSSFWorkbook(fis);
+        XSSFSheet sheet = wb.getSheetAt(0);
+        List<List<String>> allStudents = new ArrayList<>();
+        for(Row row: sheet) {
+            List<String> student = new ArrayList<>();
+            for(Cell cell: row) {
+                student.add(cell.getStringCellValue());
+            }
+            allStudents.add(student);
+        }
+        for(List<String> student: allStudents) {
+            Student studentObj = new Student(student.get(1), student.get(0), student.get(2), Collections.emptyList());
+            teacherService.saveStudent(studentObj);
+        }
+
+        return "Students Uploaded Successfully";
     }
 }
 

@@ -1,7 +1,9 @@
 package iot.lab.internals.service;
 
 import iot.lab.internals.collections.Section;
+import iot.lab.internals.collections.Student;
 import iot.lab.internals.collections.Teacher;
+import iot.lab.internals.repository.StudentRepository;
 import iot.lab.internals.repository.TeacherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,9 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Autowired
     private TeacherRepository teacherRepository;
+
+    @Autowired
+    private StudentRepository studentRepository;
 
     @Override
     public String save(Teacher teacher) {
@@ -36,6 +41,11 @@ public class TeacherServiceImpl implements TeacherService {
         section.add(sectionMap);
         obj.setSectionMap(section);
         save(obj);
+    }
+
+    @Override
+    public void saveStudent(Student studentObj) {
+        studentRepository.save(studentObj);
     }
 
 
