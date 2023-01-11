@@ -1,24 +1,14 @@
 package iot.lab.internals.controller;
-
-import iot.lab.internals.collections.Section;
-import iot.lab.internals.collections.Student;
-import iot.lab.internals.collections.Teacher;
-import com.opencsv.exceptions.CsvException;
+import iot.lab.internals.collections.*;
 import iot.lab.internals.service.TeacherService;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-
 import java.io.*;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 @RestController
@@ -121,6 +111,37 @@ public class TeacherController {
         }
 
         return "Students Uploaded Successfully";
+    }
+
+    @GetMapping("/addAssigment")
+    public String addAssignment(@RequestParam("file")MultipartFile file, @RequestParam("tName")String name,
+                                @RequestParam("tSection")String section, @RequestParam("tSubject")String subject,
+                                @RequestParam("assignName")String assignName) throws IOException {
+
+        List<Student> students = teacherService.getStudentBySection(section);
+        FileInputStream fis = new FileInputStream(convert(file));
+        XSSFWorkbook wb = new XSSFWorkbook(fis);
+        XSSFSheet sheet = wb.getSheetAt(0);
+        for(Student student: students) {
+
+            for(Row row: sheet) {
+                for(Cell cell: row) {
+                    if(cell.getNumericCellValue() == Integer.parseInt(student.roll)) {
+                        int columnIndex = cell.getColumnIndex();
+                        double individualMarks = row.getCell(columnIndex + 1).getNumericCellValue();
+                        List<Assignment> assignmentList = new ArrayList<>();
+                        assignmentList.add(new Assignment(assignName, individualMarks));
+                        Marks marks = new Marks(subject, assignmentList);
+                        insertMarksStudent(marks, student.roll);
+                    }
+                }
+            }
+        }
+        return "Assignment added Successfully";
+    }
+
+    private void insertMarksStudent(Marks marks, String roll) {
+        teacherService.addMarks(marks, roll);
     }
 }
 

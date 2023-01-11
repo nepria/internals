@@ -1,5 +1,6 @@
 package iot.lab.internals.service;
 
+import iot.lab.internals.collections.Marks;
 import iot.lab.internals.collections.Section;
 import iot.lab.internals.collections.Student;
 import iot.lab.internals.collections.Teacher;
@@ -18,4 +19,8 @@ public interface TeacherService {
     void addSection(String s, Section sectionMap);
 
     void saveStudent(Student studentObj);
+
+    List<Student> getStudentBySection(String section);
+
+    void addMarks(Marks marks, String roll);
 }
