@@ -23,4 +23,6 @@ public interface TeacherService {
     List<Student> getStudentBySection(String section);
 
     void addMarks(Marks marks, String roll);
+
+    int getTeacherByRoll(String roll);
 }

@@ -20,6 +20,11 @@ public class TeacherController {
     private TeacherService teacherService;
 
 
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello";
+    }
+
     //Get Teacher Object by passing TeacherCode
     @GetMapping
     public Teacher getDetails(@RequestParam(value="tCode") int code) {
@@ -87,10 +92,11 @@ public class TeacherController {
     }
 
     //Save a single Teacher
-    @PostMapping
+    @PostMapping()
     public String save(@RequestBody Teacher teacher) {
         return teacherService.save(teacher);
     }
+
 
     @GetMapping("/importStudents")
     public String importStudent(@RequestParam("file")MultipartFile file ) throws IOException {

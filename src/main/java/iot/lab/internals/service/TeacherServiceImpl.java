@@ -63,5 +63,10 @@ public class TeacherServiceImpl implements TeacherService {
         studentRepository.save(obj);
     }
 
+    @Override
+    public int getTeacherByRoll(String roll) {
+        return teacherRepository.findTeacherByName(roll).getCode();
+    }
+
 
 }

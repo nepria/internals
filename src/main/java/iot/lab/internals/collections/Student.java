@@ -11,13 +11,13 @@ import java.util.List;
 @Document(collection = "student")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Student {
+
     public Student(String name, String roll, String section, List<Marks> marksList) {
         this.name = name;
         this.roll = roll;
         this.section = section;
         this.marksList = marksList;
     }
-
     @Id
     public String studentId;
     public String name;
