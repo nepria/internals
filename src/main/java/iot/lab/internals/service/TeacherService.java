@@ -1,9 +1,6 @@
 package iot.lab.internals.service;
 
-import iot.lab.internals.collections.Marks;
-import iot.lab.internals.collections.Section;
-import iot.lab.internals.collections.Student;
-import iot.lab.internals.collections.Teacher;
+import iot.lab.internals.collections.*;
 
 import java.util.List;
 
@@ -14,7 +11,7 @@ public interface TeacherService {
     Teacher getTeacherById(int id);
 
     boolean ifTeacherExistsByName(String s);
-
+    boolean ifTeacherExistsByCode(int c);
 
     void addSection(String s, Section sectionMap);
 
@@ -22,7 +19,10 @@ public interface TeacherService {
 
     List<Student> getStudentBySection(String section);
 
-    void addMarks(Marks marks, String roll);
+    void addMarks(List<Assignment> assignmentList,String subject, String roll);
+
+    double totalMarks(String subject, String roll);
+    List<Teacher> getTeacher();
 
     int getTeacherByRoll(String roll);
 }

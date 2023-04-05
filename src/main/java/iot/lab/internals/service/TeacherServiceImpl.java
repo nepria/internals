@@ -1,14 +1,12 @@
 package iot.lab.internals.service;
 
-import iot.lab.internals.collections.Marks;
-import iot.lab.internals.collections.Section;
-import iot.lab.internals.collections.Student;
-import iot.lab.internals.collections.Teacher;
+import iot.lab.internals.collections.*;
 import iot.lab.internals.repository.StudentRepository;
 import iot.lab.internals.repository.TeacherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,6 +34,11 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public boolean ifTeacherExistsByCode(int code) {
+        return teacherRepository.existsTeacherByCode(code);
+    }
+
+    @Override
     public void addSection(String s, Section sectionMap) {
         Teacher obj = teacherRepository.findTeacherByName(s);
         List<Section> section = obj.getSectionMap();
@@ -53,13 +56,27 @@ public class TeacherServiceImpl implements TeacherService {
     public List<Student> getStudentBySection(String section) {
         return studentRepository.findStudentsBySection(section);
     }
-
     @Override
-    public void addMarks(Marks marks, String roll) {
+    public void addMarks(List<Assignment> assignmentList, String subject, String roll) {
         Student obj = studentRepository.findStudentsByRoll(roll);
         List<Marks> marksList = obj.getMarksList();
-        marksList.add(marks);
-        obj.setMarksList(marksList);
+        int i, f = 0;
+        for(i = 0; i < marksList.size(); i++) {
+                Marks marks_sub = marksList.get(i);
+                if (marks_sub.subject.equalsIgnoreCase(subject)) {
+                    List<Assignment> a = marks_sub.getAssignmentList();
+                    Assignment assignment = assignmentList.get(0);
+                    a.add(assignment);
+                    marks_sub.setAssignmentList(a);
+                    f = 1;
+                    break;
+                }
+        }
+        if(f == 0) {
+            Marks marks = new Marks(subject, assignmentList);
+            marksList.add(marks);
+            obj.setMarksList(marksList);
+        }
         studentRepository.save(obj);
     }
 
@@ -68,5 +85,37 @@ public class TeacherServiceImpl implements TeacherService {
         return teacherRepository.findTeacherByName(roll).getCode();
     }
 
+    @Override
+    public double totalMarks(String subject, String roll) {
+        Student obj = studentRepository.findStudentsByRoll(roll);
+        List<Marks> marksList = obj.getMarksList();
+        int i = 0, j = 0;
+        double sum = 0.0;
+        while(true) {
+            if (i < marksList.size()) {
+                Marks marks_sub = marksList.get(i);
+                if (subject.equalsIgnoreCase(marks_sub.getSubject())) {
+                    List<Assignment> assignmentsList = marks_sub.getAssignmentList();
+                    while (j < assignmentsList.size()) {
+                        Assignment sub_assignment = assignmentsList.get(j);
+                        sum = sum + (sub_assignment.getMarks() * sub_assignment.getWeightage());
+                        j++;
+                    }
+                    return sum;
+                }
+                i++;
+            }
+            else
+                break;
+        }
+        return sum;
+    }
+
+    @Override
+    public List<Teacher> getTeacher() {
+        List<Teacher> tc = new ArrayList<Teacher>();
+        tc = teacherRepository.findAll();
+        return tc;
+    }
 
 }

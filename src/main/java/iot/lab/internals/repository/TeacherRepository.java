@@ -13,6 +13,7 @@ public interface TeacherRepository extends MongoRepository<Teacher, String> {
     boolean existsTeacherByName(String name);
     Teacher findByCode(int code);
     Teacher findTeacherByName(String name);
-
+    boolean existsTeacherByCode(int code);
+    List<Teacher> findAll();
 
 }

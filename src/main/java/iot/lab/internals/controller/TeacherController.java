@@ -6,6 +6,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
@@ -122,7 +124,7 @@ public class TeacherController {
     @GetMapping("/addAssigment")
     public String addAssignment(@RequestParam("file")MultipartFile file, @RequestParam("tName")String name,
                                 @RequestParam("tSection")String section, @RequestParam("tSubject")String subject,
-                                @RequestParam("assignName")String assignName) throws IOException {
+                                @RequestParam("assignName")String assignName, @RequestParam("weightage")double weightage) throws IOException {
 
         List<Student> students = teacherService.getStudentBySection(section);
         FileInputStream fis = new FileInputStream(convert(file));
@@ -136,9 +138,8 @@ public class TeacherController {
                         int columnIndex = cell.getColumnIndex();
                         double individualMarks = row.getCell(columnIndex + 1).getNumericCellValue();
                         List<Assignment> assignmentList = new ArrayList<>();
-                        assignmentList.add(new Assignment(assignName, individualMarks));
-                        Marks marks = new Marks(subject, assignmentList);
-                        insertMarksStudent(marks, student.roll);
+                        assignmentList.add(new Assignment(assignName, individualMarks, weightage));
+                        insertMarksStudent(assignmentList, subject, student.roll);
                     }
                 }
             }
@@ -146,8 +147,65 @@ public class TeacherController {
         return "Assignment added Successfully";
     }
 
-    private void insertMarksStudent(Marks marks, String roll) {
-        teacherService.addMarks(marks, roll);
+    private void insertMarksStudent(List<Assignment> assignmentList,String subject, String roll) {
+        teacherService.addMarks(assignmentList,subject, roll);
     }
+
+    @GetMapping("/totalMarks")
+    public File totalMarks(@RequestParam("tName")String name, @RequestParam("tSection")String section, @RequestParam("tSubject")String subject) throws IOException  {
+        List<Student> students = teacherService.getStudentBySection(section);
+        double final_marks = 0.0;
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Interal Marks");
+        Map<String, Object[]> data = new TreeMap<String, Object[]>();
+        data.put("1", new Object[] { "ROLL NO", "NAME", "TOTAL MARKS" });
+        int k = 2;
+        for(Student student: students) {
+            final_marks = getTotalMarks(subject, student.roll);
+            data.put(""+k++, new Object[] { student.roll, student.name, ""+final_marks });
+        }
+        Set<String> keyset = data.keySet();
+        int rownum = 0;
+        for (String key : keyset) {
+            Row row = sheet.createRow(rownum++);
+            Object[] objArr = data.get(key);
+            int cellnum = 0;
+            for (Object obj : objArr) {
+                Cell cell = row.createCell(cellnum++);
+                if (obj instanceof String)
+                    cell.setCellValue((String)obj);
+                else if (obj instanceof Integer)
+                    cell.setCellValue((Integer)obj);
+            }
+        }
+       FileOutputStream out = new FileOutputStream(new File("internal_marks.xlsx"));
+       workbook.write(out);
+       File inter = new File("internal_marks.xls");
+       out.close();
+       return inter;
+    }
+
+    private double getTotalMarks(String section, String roll) {
+        return teacherService.totalMarks(section, roll);
+    }
+
+    @GetMapping("/authorization")
+    public Object authorization(@RequestParam("tName")String name, @RequestParam("tCode")int code) throws IOException {
+        if (teacherService.ifTeacherExistsByCode(code)) {
+            Teacher teacher = teacherService.getTeacherById(code);
+            if (teacher.getName().equalsIgnoreCase(name))
+                return teacher;
+        }
+
+        return ResponseEntity.accepted().body("Teacher does not exist");
+    }
+
+    @GetMapping("/getTeachers")
+    public List<Teacher> getTeachers() throws IOException {
+        List<Teacher> tc = new ArrayList<Teacher>();
+        tc = teacherService.getTeacher();
+        return tc;
+    }
+
 }
 
