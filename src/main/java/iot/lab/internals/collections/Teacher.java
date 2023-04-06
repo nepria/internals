@@ -19,6 +19,7 @@ public class Teacher {
         this.code = code;
         this.sectionMap = sectionMap;
     }
+    public Teacher(){}
 
     @Id
      public String teacherId;

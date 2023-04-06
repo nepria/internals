@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.bind.annotation.*;
@@ -189,15 +190,28 @@ public class TeacherController {
         return teacherService.totalMarks(section, roll);
     }
 
-    @GetMapping("/authorization")
-    public Object authorization(@RequestParam("tName")String name, @RequestParam("tCode")int code) throws IOException {
+//    @GetMapping("/authorization")
+//    public Object authorization(@RequestParam("tName")String name, @RequestParam("tCode")int code) throws IOException {
+//        if (teacherService.ifTeacherExistsByCode(code)) {
+//            Teacher teacher = teacherService.getTeacherById(code);
+//            if (teacher.getName().equalsIgnoreCase(name))
+//                return teacher;
+//        }
+//
+//        return ResponseEntity.accepted().body("Teacher does not exist");
+//    }
+
+       @GetMapping("/authorization")
+    public ResponseEntity<Teacher> authorization(@RequestParam("tName")String name, @RequestParam("tCode")int code) throws IOException {
+
         if (teacherService.ifTeacherExistsByCode(code)) {
             Teacher teacher = teacherService.getTeacherById(code);
-            if (teacher.getName().equalsIgnoreCase(name))
-                return teacher;
+            if (teacher.getName().equalsIgnoreCase(name)) {
+                return new ResponseEntity<>(teacher, HttpStatusCode.valueOf(200));
+            }
         }
 
-        return ResponseEntity.accepted().body("Teacher does not exist");
+        return new ResponseEntity<>(new Teacher(), HttpStatusCode.valueOf(401));
     }
 
     @GetMapping("/getTeachers")
