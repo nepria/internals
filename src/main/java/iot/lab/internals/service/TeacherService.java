@@ -24,5 +24,7 @@ public interface TeacherService {
     double totalMarks(String subject, String roll);
     List<Teacher> getTeacher();
 
+    List<Assignment> getAssignment(String section,String subject);
+
     int getTeacherByRoll(String roll);
 }

@@ -152,6 +152,21 @@ public class TeacherController {
         teacherService.addMarks(assignmentList,subject, roll);
     }
 
+    @GetMapping("/totalStudents")
+    public int totalStudents(@RequestParam("tSection")String section) throws IOException {
+        List<Student> students = teacherService.getStudentBySection(section);
+        int count = 0;
+        for(Student st: students) {
+            count++;
+        }
+        return count;
+    }
+
+    @GetMapping("/getAssignments")
+    public List<Assignment> getAssignment(@RequestParam("tSection")String section, @RequestParam("tSubject")String subject) throws IOException {
+        return teacherService.getAssignment(section, subject);
+    }
+
     @GetMapping("/totalMarks")
     public File totalMarks(@RequestParam("tName")String name, @RequestParam("tSection")String section, @RequestParam("tSubject")String subject) throws IOException  {
         List<Student> students = teacherService.getStudentBySection(section);

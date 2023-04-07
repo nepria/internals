@@ -118,4 +118,21 @@ public class TeacherServiceImpl implements TeacherService {
         return tc;
     }
 
+    @Override
+    public List<Assignment> getAssignment(String section,String subject) {
+        List<Student> students = studentRepository.findStudentsBySection(section);
+            List<Marks> marks = students.get(0).getMarksList();
+            int i = 0;
+        while(true) {
+            if (i < marks.size()) {
+                Marks marks_sub = marks.get(i);
+                if (subject.equalsIgnoreCase(marks_sub.getSubject())) {
+                    return marks_sub.getAssignmentList();
+                }
+            }
+            else
+                return null;
+        }
+    }
+
 }
